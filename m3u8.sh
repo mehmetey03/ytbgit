@@ -26,7 +26,7 @@ echo "#EXTM3U" > playlist.m3u
 for file in playlist/*.m3u8; do
     name=$(basename "$file" .m3u8)
     echo "#EXTINF:-1,$name" >> playlist.m3u
-    echo "https://raw.githubusercontent.com/tecotv2025/tecotv/main/$file" >> playlist.m3u
+    echo "https://raw.githubusercontent.com/mehmetey03/ytbgit/main/$file" >> playlist.m3u
 done
 
 # playlist.m3u'yu da playlist klasörüne koy
