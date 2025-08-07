@@ -23,10 +23,10 @@ jobs:
       - name: 📦 Scripti çalıştır
         run: bash m3u8.sh
 
-      - name: ⬆️ Güncellenmiş playlist.m3u dosyasını GitHub'a yükle
+      - name: ⬆️ Güncellenmiş dosyaları GitHub'a yükle
         run: |
           git config --global user.email "you@example.com"
           git config --global user.name "GitHub Actions"
-          git add playlist/playlist.m3u
-          git commit -m "🎵 Otomatik güncelleme (playlist.m3u)"
-          git push
+          git add playlist/*.m3u8 playlist.m3u
+          git commit -m "🎵 Otomatik güncelleme"
+          git push || echo "🚫 Push yapılamadı (muhtemelen değişiklik yok)"
