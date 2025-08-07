@@ -1,24 +1,32 @@
-name: Günlük Playlist Güncellemesi
+name: 🎵 Playlist Güncelleme
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Her 3 saatte bir
-  workflow_dispatch:       # Manuel tetikleme
+    - cron: '0 * * * *'  # Her saat başı
+  push:
+    paths:
+      - 'link.json'
+      - 'm3u8.sh'
+      - '.github/workflows/main.yml'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Repo'yu klonla
+      - name: 🔽 Depoyu klonla
         uses: actions/checkout@v3
 
-      - name: Shell scripti çalıştır
+      - name: 🛠 Gerekli araçları kur
+        run: sudo apt-get update && sudo apt-get install jq -y
+
+      - name: 📦 Scripti çalıştır
         run: bash m3u8.sh
 
-      - name: Git değişikliklerini pushla
+      - name: ⬆️ Güncellenmiş playlist.m3u dosyasını GitHub'a yükle
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "⏰ Otomatik güncelleme - $(date '+%Y-%m-%d %H:%M:%S')" || echo "Değişiklik yok"
+          git config --global user.email "you@example.com"
+          git config --global user.name "GitHub Actions"
+          git add playlist/playlist.m3u
+          git commit -m "🎵 Otomatik güncelleme (playlist.m3u)"
           git push
