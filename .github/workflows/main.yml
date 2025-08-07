@@ -10,23 +10,34 @@ on:
       - '.github/workflows/main.yml'
 
 jobs:
-  build:
+  update_playlists:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Git push için gerekli izin
 
     steps:
-      - name: 🔽 Depoyu klonla
-        uses: actions/checkout@v3
+      - name: 🔄 Repoyu klonla
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Tüm commit geçmişi
 
-      - name: 🛠 Gerekli araçları kur
-        run: sudo apt-get update && sudo apt-get install jq -y
-
-      - name: 📦 Scripti çalıştır
-        run: bash m3u8.sh
-
-      - name: ⬆️ Güncellenmiş dosyaları GitHub'a yükle
+      - name: 🛠️ Araçları kur
         run: |
-          git config --global user.email "you@example.com"
+          sudo apt-get update
+          sudo apt-get install -y jq curl
+
+      - name: 🚀 Scripti çalıştır
+        run: |
+          chmod +x m3u8.sh
+          ./m3u8.sh
+
+      - name: 📌 Değişiklikleri kaydet
+        if: "!contains(git status --porcelain, 'no changes added to commit')"
+        run: |
           git config --global user.name "GitHub Actions"
-          git add playlist/*.m3u8 playlist.m3u
-          git commit -m "🎵 Otomatik güncelleme"
-          git push || echo "🚫 Push yapılamadı (muhtemelen değişiklik yok)"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "🔄 Otomatik güncelleme: $(date +'%Y-%m-%d %H:%M')"
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
