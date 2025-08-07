@@ -1,7 +1,6 @@
 #!/bin/bash
-set -euo pipefail  # Hata durumunda dur, tanımsız değişkenleri kontrol et
+set -euo pipefail
 
-# GitHub Actions'ta çalışıyorsa özel yol
 WORKSPACE="${GITHUB_WORKSPACE:-$(pwd)}"
 cd "$WORKSPACE" || exit 1
 
@@ -9,21 +8,26 @@ echo "🛠️  Ortam hazırlanıyor..."
 mkdir -p playlist
 rm -f playlist/*.m3u8 playlist.m3u
 
-# JSON işleme
 echo "📥 Kanallar indiriliyor..."
 jq -c '.[]' link.json | while read -r i; do
-    name=$(echo "$i" | jq -r '.name | gsub("[^a-zA-Z0-9]"; "_")')  # Özel karakterleri temizle
+    name=$(echo "$i" | jq -r '.name | gsub("[^a-zA-Z0-9]"; "_")')
     url=$(echo "$i" | jq -r '.url')
+    
     echo "🔗 $name işleniyor..."
-    curl -fsSL "$url" -H "User-Agent: Mozilla/5.0" -H "Referer: https://live.artofknot.com/" -o "playlist/${name}.m3u8"
+    if ! curl -fsSL --max-time 30 "$url" \
+         -H "User-Agent: Mozilla/5.0" \
+         -H "Referer: https://live.artofknot.com/" \
+         -o "playlist/${name}.m3u8"; then
+         echo "⚠️  $name indirilemedi, boş dosya oluşturuluyor"
+         echo "#EXTM3U" > "playlist/${name}.m3u8"
+    fi
 done
 
-# Ana playlist oluştur
 echo "📝 Ana playlist oluşturuluyor..."
 {
     echo "#EXTM3U"
     for file in playlist/*.m3u8; do
-        [ -e "$file" ] || continue  # Boş klasör kontrolü
+        [ -e "$file" ] || continue
         name=$(basename "$file" .m3u8)
         echo "#EXTINF:-1,$name"
         echo "https://raw.githubusercontent.com/${GITHUB_REPOSITORY:-user/repo}/main/playlist/${name}.m3u8"
