@@ -13,13 +13,13 @@ jobs:
   update_playlists:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # Git push için gerekli izin
+      contents: write
 
     steps:
       - name: 🔄 Repoyu klonla
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Tüm commit geçmişi
+          fetch-depth: 0
 
       - name: 🛠️ Araçları kur
         run: |
@@ -31,8 +31,17 @@ jobs:
           chmod +x m3u8.sh
           ./m3u8.sh
 
+      - name: 🔍 Değişiklikleri kontrol et
+        id: check_changes
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: 📌 Değişiklikleri kaydet
-        if: "!contains(git status --porcelain, 'no changes added to commit')"
+        if: steps.check_changes.outputs.has_changes == 'true'
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
