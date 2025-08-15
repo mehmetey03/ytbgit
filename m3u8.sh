@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /home/tecotv/  # script hangi dizinden çalışıyorsa
+cd /home/tecotv/
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Gereken paketleri kur
@@ -35,4 +35,4 @@ mv playlist.m3u playlist/playlist.m3u
 # Git işlemleri
 git add playlist
 git commit -m "✅ Playlist dosyaları güncellendi: $(date)"
-git push origin main
+git push origin main  # DÜZELTİLDİ
